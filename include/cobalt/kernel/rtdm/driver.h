@@ -851,8 +851,12 @@ typedef int (*rtdm_irq_handler_t)(rtdm_irq_t *irq_handle);
 /** @} rtdm_irq */
 
 int rtdm_irq_request(rtdm_irq_t *irq_handle, unsigned int irq_no,
-		     rtdm_irq_handler_t handler, unsigned long flags,
-		     const char *device_name, void *arg);
+                     rtdm_irq_handler_t handler, unsigned long flags,
+                     const char *device_name, void *arg);
+
+int rtdm_irq_request_cpumask(rtdm_irq_t *irq_handle, unsigned int irq_no,
+                     rtdm_irq_handler_t handler, unsigned long flags,
+                     const char *device_name, void *arg, cpumask_t *mask);
 
 #ifndef DOXYGEN_CPP /* Avoid static inline tags for RTDM in doxygen */
 static inline int rtdm_irq_free(rtdm_irq_t *irq_handle)

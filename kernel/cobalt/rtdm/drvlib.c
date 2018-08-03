@@ -1421,30 +1421,61 @@ EXPORT_SYMBOL_GPL(rtdm_mutex_timedlock);
  * @coretags{secondary-only}
  */
 int rtdm_irq_request(rtdm_irq_t *irq_handle, unsigned int irq_no,
-		     rtdm_irq_handler_t handler, unsigned long flags,
-		     const char *device_name, void *arg)
+                     rtdm_irq_handler_t handler, unsigned long flags,
+                     const char *device_name, void *arg)
 {
-	int err;
+        int err;
 
-	if (!XENO_ASSERT(COBALT, xnsched_root_p()))
-		return -EPERM;
+        if (!XENO_ASSERT(COBALT, xnsched_root_p()))
+                return -EPERM;
 
-	err = xnintr_init(irq_handle, device_name, irq_no, handler, NULL, flags);
-	if (err)
-		return err;
+        err = xnintr_init(irq_handle, device_name, irq_no, handler, NULL, flags);
+        if (err)
+                return err;
 
-	err = xnintr_attach(irq_handle, arg);
-	if (err) {
-		xnintr_destroy(irq_handle);
-		return err;
-	}
+        err = xnintr_attach(irq_handle, arg);
+        if (err) {
+                xnintr_destroy(irq_handle);
+                return err;
+        }
 
-	xnintr_enable(irq_handle);
+        xnintr_enable(irq_handle);
 
-	return 0;
+        return 0;
 }
 
 EXPORT_SYMBOL_GPL(rtdm_irq_request);
+
+int rtdm_irq_request_cpumask(rtdm_irq_t *irq_handle, unsigned int irq_no,
+                     rtdm_irq_handler_t handler, unsigned long flags,
+                     const char *device_name, void *arg, cpumask_t *mask)
+{
+        int err;
+
+        if (!XENO_ASSERT(COBALT, xnsched_root_p()))
+                return -EPERM;
+
+        err = xnintr_init(irq_handle, device_name, irq_no, handler, NULL, flags);
+        if (err)
+                return err;
+
+        err = xnintr_attach(irq_handle, arg);
+        if (err) {
+                xnintr_destroy(irq_handle);
+                return err;
+        }
+
+        if(mask) {
+            rtdm_printk("rtdm_irq_request_cpumask binding irq to cpu %*pb[l]\r\n",cpumask_pr_args(mask));
+            xnintr_affinity(irq_handle, *mask);
+        }
+
+        xnintr_enable(irq_handle);
+
+        return 0;
+}
+
+EXPORT_SYMBOL_GPL(rtdm_irq_request_cpumask);
 
 #ifdef DOXYGEN_CPP /* Only used for doxygen doc generation */
 /**

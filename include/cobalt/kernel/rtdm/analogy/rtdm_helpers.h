@@ -111,10 +111,16 @@ struct a4l_irq_descriptor {
 	rtdm_irq_t rtdm_desc;
 };
 
+int __a4l_request_irq_cpumask(struct a4l_irq_descriptor * dsc,
+                      unsigned int irq,
+                      a4l_irq_hdlr_t handler,
+                      unsigned long flags, void *cookie, cpumask_t *mask);
+
 int __a4l_request_irq(struct a4l_irq_descriptor * dsc,
-		      unsigned int irq,
-		      a4l_irq_hdlr_t handler,
-		      unsigned long flags, void *cookie);
+                      unsigned int irq,
+                      a4l_irq_hdlr_t handler,
+                      unsigned long flags, void *cookie);
+
 int __a4l_free_irq(struct a4l_irq_descriptor * dsc);
 
 /* --- Synchronization section --- */

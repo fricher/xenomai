@@ -151,7 +151,7 @@ out_setup_tsf:
 int a4l_request_irq(struct a4l_device * dev,
 		    unsigned int irq,
 		    a4l_irq_hdlr_t handler,
-		    unsigned long flags, void *cookie)
+                    unsigned long flags, void *cookie)
 {
 	int ret;
 
@@ -159,13 +159,33 @@ int a4l_request_irq(struct a4l_device * dev,
 		return -EBUSY;
 
 	ret = __a4l_request_irq(&dev->transfer.irq_desc, irq, handler, flags,
-		cookie);
+                cookie);
 	if (ret != 0) {
 		__a4l_err("a4l_request_irq: IRQ registration failed\n");
 		dev->transfer.irq_desc.irq = A4L_IRQ_UNUSED;
 	}
 
 	return ret;
+}
+
+int a4l_request_irq_cpumask(struct a4l_device * dev,
+                    unsigned int irq,
+                    a4l_irq_hdlr_t handler,
+                    unsigned long flags, void *cookie, cpumask_t *mask)
+{
+    int ret;
+
+    if (dev->transfer.irq_desc.irq != A4L_IRQ_UNUSED)
+            return -EBUSY;
+
+    ret = __a4l_request_irq_cpumask(&dev->transfer.irq_desc, irq, handler, flags,
+            cookie, mask);
+    if (ret != 0) {
+            __a4l_err("a4l_request_irq: IRQ registration failed\n");
+            dev->transfer.irq_desc.irq = A4L_IRQ_UNUSED;
+    }
+
+    return ret;
 }
 
 int a4l_free_irq(struct a4l_device * dev, unsigned int irq)

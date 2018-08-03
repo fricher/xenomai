@@ -59,19 +59,35 @@ static int a4l_handle_irq(rtdm_irq_t *irq_handle)
 }
 
 int __a4l_request_irq(struct a4l_irq_descriptor *dsc,
-		      unsigned int irq,
-		      a4l_irq_hdlr_t handler,
-		      unsigned long flags, void *cookie)
+                      unsigned int irq,
+                      a4l_irq_hdlr_t handler,
+                      unsigned long flags, void *cookie)
 {
-	/* Fills the IRQ descriptor */
-	dsc->handler = handler;
-	dsc->cookie = cookie;
-	dsc->irq = irq;
+        /* Fills the IRQ descriptor */
+        dsc->handler = handler;
+        dsc->cookie = cookie;
+        dsc->irq = irq;
 
-	/* Registers the RT IRQ handler */
-	return rtdm_irq_request(&dsc->rtdm_desc,
-				(int)irq,
-				a4l_handle_irq, flags, "Analogy device", dsc);
+        /* Registers the RT IRQ handler */
+        return rtdm_irq_request(&dsc->rtdm_desc,
+                                (int)irq,
+                                a4l_handle_irq, flags, "Analogy device", dsc);
+}
+
+int __a4l_request_irq_cpumask(struct a4l_irq_descriptor *dsc,
+                      unsigned int irq,
+                      a4l_irq_hdlr_t handler,
+                      unsigned long flags, void *cookie, cpumask_t *mask)
+{
+        /* Fills the IRQ descriptor */
+        dsc->handler = handler;
+        dsc->cookie = cookie;
+        dsc->irq = irq;
+
+        /* Registers the RT IRQ handler */
+        return rtdm_irq_request_cpumask(&dsc->rtdm_desc,
+                                (int)irq,
+                                a4l_handle_irq, flags, "Analogy device", dsc, mask);
 }
 
 int __a4l_free_irq(struct a4l_irq_descriptor * dsc)

@@ -1467,7 +1467,7 @@ static void init_6143(struct a4l_device *dev)
 
 static int pcimio_attach(struct a4l_device *dev, a4l_lnkdesc_t *arg)
 {
-	int ret, bus, slot, i, irq;
+        int ret, bus, slot, i, irq, pref_cpu = -1;
 	struct mite_struct *mite = NULL;
 	struct ni_board_struct *board = NULL;
 
@@ -1475,9 +1475,11 @@ static int pcimio_attach(struct a4l_device *dev, a4l_lnkdesc_t *arg)
 		bus = slot = 0;
 	else {
 		bus = arg->opts_size >= sizeof(unsigned long) ?
-			((unsigned long *)arg->opts)[0] : 0;
-		slot = arg->opts_size >= sizeof(unsigned long) * 2 ?
-			((unsigned long *)arg->opts)[1] : 0;
+                        ((unsigned long *)arg->opts)[0] : 0;
+                slot = arg->opts_size >= sizeof(unsigned long) * 2 ?
+                        ((unsigned long *)arg->opts)[1] : 0;
+                pref_cpu = arg->opts_size >= sizeof(unsigned long) * 3 ?
+                        ((unsigned long *)arg->opts)[2] : -1;
 	}
 
 	for(i = 0; i < n_pcimio_boards && mite == NULL; i++) {
@@ -1541,9 +1543,21 @@ static int pcimio_attach(struct a4l_device *dev, a4l_lnkdesc_t *arg)
 		a4l_warn(dev, "pcimio_attach: unknown irq (bad)\n\n");
 	}else{
 		a4l_info(dev, "found irq %u\n", irq);
-		ret = a4l_request_irq(dev,
-				      irq,
-				      a4l_ni_E_interrupt, RTDM_IRQTYPE_SHARED, dev);
+                if(pref_cpu < 0) {
+                    ret = a4l_request_irq(dev,
+                                          irq,
+                                          a4l_ni_E_interrupt, RTDM_IRQTYPE_SHARED, dev);
+                }
+                else {
+                    cpumask_t cpumask;
+                    cpumask_clear(&cpumask);
+                    cpumask_set_cpu(pref_cpu,&cpumask);
+                    rtdm_printk("binding irq to cpu %d\r\n",pref_cpu);
+                    ret = a4l_request_irq_cpumask(dev,
+                                          irq,
+                                          a4l_ni_E_interrupt, RTDM_IRQTYPE_SHARED, dev, &cpumask);
+                }
+
 		if(ret < 0)
 			a4l_err(dev, "pcimio_attach: irq not available\n");
 	}

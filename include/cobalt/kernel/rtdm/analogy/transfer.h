@@ -66,10 +66,16 @@ int a4l_cancel_transfers(struct a4l_device_context * cxt);
 ssize_t a4l_put(struct a4l_device_context * cxt, void *buf, size_t nbytes);
 ssize_t a4l_get(struct a4l_device_context * cxt, void *buf, size_t nbytes);
 
-int a4l_request_irq(struct a4l_device *dev,
+int a4l_request_irq_cpumask(struct a4l_device *dev,
 		    unsigned int irq,
 		    a4l_irq_hdlr_t handler,
-		    unsigned long flags, void *cookie);
+                    unsigned long flags, void *cookie, cpumask_t *mask);
+
+int a4l_request_irq(struct a4l_device *dev,
+                    unsigned int irq,
+                    a4l_irq_hdlr_t handler,
+                    unsigned long flags, void *cookie);
+
 int a4l_free_irq(struct a4l_device *dev, unsigned int irq);
 unsigned int a4l_get_irq(struct a4l_device *dev);
 

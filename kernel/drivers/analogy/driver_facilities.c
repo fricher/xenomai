@@ -569,10 +569,16 @@ EXPORT_SYMBOL_GPL(a4l_get_irq);
  *
  */
 int a4l_request_irq(struct a4l_device * dev,
-		       unsigned int irq,
-		       a4l_irq_hdlr_t handler,
-		       unsigned long flags, void *cookie);
+                       unsigned int irq,
+                       a4l_irq_hdlr_t handler,
+                       unsigned long flags, void *cookie);
 EXPORT_SYMBOL_GPL(a4l_request_irq);
+
+int a4l_request_irq_cpumask(struct a4l_device * dev,
+                       unsigned int irq,
+                       a4l_irq_hdlr_t handler,
+                       unsigned long flags, void *cookie, cpumask_t *mask);
+EXPORT_SYMBOL_GPL(a4l_request_irq_cpumask);
 
 /**
  * @brief Release an interrupt handler for a specific device
